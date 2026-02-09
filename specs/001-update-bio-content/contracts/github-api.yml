@@ -1,0 +1,314 @@
+# GitHub GraphQL API Contract
+# Feature: Portfolio Content Sync (001-update-bio-content)
+# Purpose: Document the GitHub GraphQL API interaction for fetching pinned repositories
+
+api_info:
+  name: "GitHub GraphQL API v4"
+  base_url: "https://api.github.com/graphql"
+  protocol: "GraphQL over HTTPS"
+  authentication: "Bearer Token (Personal Access Token)"
+  documentation_url: "https://docs.github.com/en/graphql"
+
+authentication:
+  type: "Bearer Token"
+  header: "Authorization"
+  format: "bearer TOKEN_VALUE"
+  token_source: "GitHub Personal Access Token"
+  required_scopes:
+    - "public_repo (read-only for public repositories)"
+  note: "Token must be stored securely (GitHub Secrets for Actions, ENV var for local)"
+
+rate_limiting:
+  primary_limit:
+    points_per_hour: 5000
+    description: "Authenticated users get 5,000 points/hour"
+    point_cost_this_query: 1
+    note: "This query costs approximately 1 point"
+
+  secondary_limits:
+    max_concurrent_requests: 100
+    max_points_per_minute: 2000
+    max_cpu_time_per_hour: "90 seconds"
+
+  rate_limit_headers:
+    - "X-RateLimit-Limit"
+    - "X-RateLimit-Remaining"
+    - "X-RateLimit-Reset"
+
+  handling:
+    on_limit_exceeded: "Wait until reset time, display error message in data file"
+    retry_strategy: "Exponential backoff (not needed for manual trigger)"
+
+graphql_query:
+  operation_type: "query"
+  operation_name: "GetPinnedRepositories"
+
+  query_string: |
+    query GetPinnedRepositories($username: String!) {
+      user(login: $username) {
+        pinnedItems(first: 6, types: REPOSITORY) {
+          totalCount
+          edges {
+            node {
+              ... on Repository {
+                id
+                name
+                description
+                url
+                homepageUrl
+                stargazerCount
+                forkCount
+                primaryLanguage {
+                  name
+                  color
+                }
+                createdAt
+                updatedAt
+                repositoryTopics(first: 10) {
+                  nodes {
+                    topic {
+                      name
+                    }
+                  }
+                }
+                isArchived
+                isFork
+              }
+            }
+          }
+        }
+      }
+    }
+
+  variables:
+    username:
+      type: "String!"
+      description: "GitHub username to fetch pinned repos from"
+      example: "DataNeuron"
+      source: "Configuration or environment variable"
+
+  parameters:
+    first: 6
+    types: "REPOSITORY"
+    note: "GitHub allows maximum 6 pinned items, all must be repositories"
+
+request_specification:
+  method: "POST"
+  headers:
+    required:
+      - name: "Authorization"
+        value: "bearer GITHUB_TOKEN"
+        description: "Personal Access Token for authentication"
+
+      - name: "Content-Type"
+        value: "application/json"
+        description: "GraphQL queries sent as JSON"
+
+    optional:
+      - name: "User-Agent"
+        value: "DataNeuron-Portfolio-Sync/1.0"
+        description: "Identify the application"
+
+  body_format: "JSON"
+  body_structure:
+    query: "GraphQL query string (see query_string above)"
+    variables:
+      username: "GitHub username value"
+
+  example_request_body: |
+    {
+      "query": "query GetPinnedRepositories($username: String!) { user(login: $username) { pinnedItems(first: 6, types: REPOSITORY) { totalCount edges { node { ... on Repository { id name description url homepageUrl stargazerCount forkCount primaryLanguage { name color } createdAt updatedAt repositoryTopics(first: 10) { nodes { topic { name } } } isArchived isFork } } } } } }",
+      "variables": {
+        "username": "DataNeuron"
+      }
+    }
+
+response_specification:
+  success_status_code: 200
+  content_type: "application/json"
+
+  success_response_structure:
+    data:
+      user:
+        pinnedItems:
+          totalCount: "Integer - number of pinned items"
+          edges:
+            - node:
+                id: "String - repository ID"
+                name: "String - repository name"
+                description: "String | null - repository description"
+                url: "String - GitHub repository URL"
+                homepageUrl: "String | null - project homepage"
+                stargazerCount: "Integer - number of stars"
+                forkCount: "Integer - number of forks"
+                primaryLanguage:
+                  name: "String | null - language name"
+                  color: "String | null - hex color code"
+                createdAt: "String - ISO 8601 timestamp"
+                updatedAt: "String - ISO 8601 timestamp"
+                repositoryTopics:
+                  nodes:
+                    - topic:
+                        name: "String - topic/tag name"
+                isArchived: "Boolean - archived status"
+                isFork: "Boolean - fork status"
+
+  example_success_response: |
+    {
+      "data": {
+        "user": {
+          "pinnedItems": {
+            "totalCount": 6,
+            "edges": [
+              {
+                "node": {
+                  "id": "R_kgDOH8qZMA",
+                  "name": "enterprise-workflow-agent",
+                  "description": "AI-powered workflow automation platform",
+                  "url": "https://github.com/DataNeuron/enterprise-workflow-agent",
+                  "homepageUrl": null,
+                  "stargazerCount": 15,
+                  "forkCount": 3,
+                  "primaryLanguage": {
+                    "name": "Python",
+                    "color": "#3572A5"
+                  },
+                  "createdAt": "2024-11-10T08:00:00Z",
+                  "updatedAt": "2026-02-07T16:45:00Z",
+                  "repositoryTopics": {
+                    "nodes": [
+                      { "topic": { "name": "langchain" } },
+                      { "topic": { "name": "aws-bedrock" } }
+                    ]
+                  },
+                  "isArchived": false,
+                  "isFork": false
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+
+  error_response_structure:
+    errors:
+      - message: "Error description"
+        type: "Error type (e.g., NOT_FOUND, RATE_LIMITED)"
+        path: "GraphQL path where error occurred"
+
+  example_error_responses:
+    user_not_found: |
+      {
+        "errors": [
+          {
+            "type": "NOT_FOUND",
+            "path": ["user"],
+            "locations": [{"line": 1, "column": 23}],
+            "message": "Could not resolve to a User with the login of 'NonExistentUser'."
+          }
+        ]
+      }
+
+    rate_limit_exceeded: |
+      {
+        "errors": [
+          {
+            "type": "RATE_LIMITED",
+            "message": "API rate limit exceeded for user"
+          }
+        ]
+      }
+
+    authentication_failed: |
+      {
+        "message": "Bad credentials",
+        "documentation_url": "https://docs.github.com/graphql"
+      }
+
+error_handling_strategy:
+  authentication_error:
+    status_code: 401
+    action: "Check GITHUB_TOKEN is valid and not expired"
+    fallback: "Write error to projects.yml, show placeholder on site"
+
+  rate_limit_error:
+    status_code: 200
+    error_type: "RATE_LIMITED"
+    action: "Wait until rate limit resets (check X-RateLimit-Reset header)"
+    fallback: "Write error message to projects.yml with retry time"
+
+  user_not_found:
+    status_code: 200
+    error_type: "NOT_FOUND"
+    action: "Verify GitHub username is correct in configuration"
+    fallback: "Write configuration error to projects.yml"
+
+  network_error:
+    action: "Retry with exponential backoff (3 attempts: 2s, 4s, 8s)"
+    fallback: "Write network error to projects.yml"
+
+  malformed_response:
+    action: "Log full response for debugging"
+    fallback: "Write parsing error to projects.yml"
+
+data_mapping:
+  graphql_to_yaml:
+    "node.id": "projects[].id"
+    "node.name": "projects[].name"
+    "node.description": "projects[].description (or null)"
+    "node.url": "projects[].url"
+    "node.homepageUrl": "projects[].homepage_url"
+    "node.stargazerCount": "projects[].stars"
+    "node.forkCount": "projects[].forks"
+    "node.primaryLanguage.name": "projects[].language.name"
+    "node.primaryLanguage.color": "projects[].language.color"
+    "node.createdAt": "projects[].created_at"
+    "node.updatedAt": "projects[].updated_at"
+    "node.repositoryTopics.nodes[]": "projects[].topics[] (extract name)"
+    "node.isArchived": "projects[].is_archived"
+    "node.isFork": "projects[].is_fork"
+
+  computed_fields:
+    "projects[].full_name": "Constructed as '#{username}/#{name}'"
+    "fetch_metadata.last_updated": "Current timestamp (ISO 8601)"
+    "fetch_metadata.fetch_status": "'success' or 'error' based on response"
+    "fetch_metadata.github_username": "Username from query variables"
+    "fetch_metadata.source": "Always 'github'"
+
+implementation_notes:
+  - "Use Ruby's Net::HTTP or HTTParty gem for HTTP requests"
+  - "Parse JSON response using Ruby's JSON library"
+  - "Handle nil values gracefully (many fields can be null)"
+  - "Extract topics from nested structure: repositoryTopics.nodes[].topic.name"
+  - "Convert timestamps to YAML-friendly format (keep ISO 8601)"
+  - "Write YAML output using YAML.dump() or Psych"
+  - "Ensure atomic file writes (write to temp file, then rename)"
+  - "Validate response structure before processing"
+  - "Log all errors with sufficient context for debugging"
+
+security_considerations:
+  - "Never commit GITHUB_TOKEN to repository"
+  - "Use GitHub Secrets for workflows, ENV vars for local"
+  - "Token should have minimal scopes (public_repo read only)"
+  - "Rotate tokens periodically (every 90 days recommended)"
+  - "Do not log token value in any debug output"
+  - "Validate all data before writing to YAML (prevent injection)"
+
+testing_with_curl:
+  example_command: |
+    curl -X POST https://api.github.com/graphql \
+      -H "Authorization: bearer YOUR_GITHUB_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "query": "query { user(login: \"DataNeuron\") { pinnedItems(first: 6, types: REPOSITORY) { edges { node { ... on Repository { name description url } } } } } }"
+      }'
+
+  validate_response: "Check for 'data' key in response, no 'errors' array"
+
+documentation_references:
+  - "GitHub GraphQL API: https://docs.github.com/en/graphql"
+  - "GraphQL Explorer: https://docs.github.com/en/graphql/overview/explorer"
+  - "Rate Limits: https://docs.github.com/en/graphql/overview/rate-limits-and-query-limits-for-the-graphql-api"
+  - "Authentication: https://docs.github.com/en/graphql/guides/forming-calls-with-graphql#authenticating-with-graphql"
+  - "Personal Access Tokens: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens"

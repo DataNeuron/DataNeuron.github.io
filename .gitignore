@@ -6,3 +6,21 @@ _site
 codekit-config.json
 node_modules
 _asset_bundler_cache
+
+# Ruby/Jekyll patterns
+.bundle/
+vendor/bundle/
+.jekyll-cache/
+.jekyll-metadata
+*.gem
+log/
+tmp/
+
+# Environment variables (IMPORTANT: Never commit tokens!)
+.env
+.env.*
+!.env.template
+
+# IDE
+.vscode/
+.idea/

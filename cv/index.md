@@ -1,88 +1,87 @@
 ---
 layout: page
-title: About
+title: Curriculum Vitae
 ---
-<section id="table-of-contents" class="toc">
-  <header>
-    <h3>Overview</h3>
-  </header>
-<div id="drawer" markdown="1">
-*  Auto generated table of contents
-{:toc}
-</div>
-</section><!-- /#table-of-contents -->
 
-I am a Data Architect and AI Engineer currently working at Thermofisher Scientific. I specialize in building production-grade AI systems, multi-agent orchestration, and cloud-native architectures.
+{% if site.data.profile %}
 
-Currently leading digital transformation projects while exploring enterprise AI automation, multi-cloud infrastructure, and intelligent workflow optimization. Passionate about social justice, mental health, gender equality, and climate change.
+# {{ site.data.profile.name }}
 
-**Recent Focus:** Built enterprise workflow automation platform demonstrating production AI architecture patterns, achieving $254K annual cost savings through intelligent agent orchestration.
+## {{ site.data.profile.headline }}
+
+{{ site.data.profile.summary }}
+
+---
 
 ## Experience
 
-**Thermofisher Scientific**
-*Data Architect, Present*
-Leading digital transformation initiatives and building scalable data architectures
+{% for job in site.data.profile.experience %}
+### {{ job.title }}
 
-**Citizens Bank**
-*Sr Data Engineer, 2019-Present*
-Build production models adhering to Regulatory rules in collection and Recovery. Performance analysis of Recovery strategies. Gap analysis and systems to streamline processes.
+**{% if job.company_url %}<a href="{{ job.company_url }}" target="_blank">{{ job.company }}</a>{% else %}{{ job.company }}{% endif %}** | {{ job.location }} | {{ job.period }}
 
-**Freddie Mac**
-*SQL Developer, 2012-2014*
-Central warehouse team member developing data pipelines and reporting systems
+{{ job.description }}
 
-## Projects
-
-**Enterprise Workflow Automation Platform with Multi-Agent AI**
-*January 2026 - February 2026* | [GitHub](https://github.com/dataneuron/enterprise-workflow-agent)
-
-Built production-grade AI automation system that reduces manual workflows by 145+ hours/week, demonstrating enterprise architecture patterns for Solutions Architect roles.
-
+{% if job.highlights and job.highlights.size > 0 %}
 **Key Achievements:**
-
-* Architected multi-agent orchestration using LangGraph with AWS Bedrock (Claude Sonnet 4) for intelligent request triage
-* Deployed infrastructure-as-code with Terraform managing 18 AWS resources (DynamoDB, S3, SQS, Lambda, VPC)
-* Developed REST API with FastAPI featuring error handling, retry logic, and comprehensive observability
-* Implemented Model Context Protocol (MCP) for Slack, Jira, and Salesforce integrations
-* Established Prometheus/Grafana monitoring achieving 95% success rate and real-time cost tracking
-* Delivered $254K annual savings with 1,325% ROI
-
-**Technologies:** Python, LangGraph, AWS Bedrock, Terraform, FastAPI, DynamoDB, Docker, Prometheus, Grafana
+{% for highlight in job.highlights %}
+- {{ highlight }}
+{% endfor %}
+{% endif %}
 
 ---
-
-**Machine Learning Projects**
-*2020* | [Blog](https://dataneuron.github.io/posts/)
-
-* **Multiclass KNN:** K-Nearest Neighbors for supervised learning
-* **Linear Regression:** Predictive modeling with feature engineering
+{% endfor %}
 
 ## Skills
 
-**Cloud & Infrastructure:**
-AWS (Bedrock, DynamoDB, S3, SQS, Lambda, VPC), Terraform, Infrastructure as Code, Multi-cloud
+{% for skill_group in site.data.profile.skills %}
+**{{ skill_group.category }}:**
+{{ skill_group.items | join: ', ' }}
 
-**Programming & Frameworks:**
-Python, SAS, LangChain, LangGraph, FastAPI, REST APIs
+{% endfor %}
 
-**AI & Machine Learning:**
-AWS Bedrock, Multi-Agent Systems, Machine Learning, Keras, TensorFlow, NLP, Computer Vision
+{% if site.data.profile.certifications and site.data.profile.certifications.size > 0 %}
+## Certifications
 
-**Data Engineering:**
-PostgreSQL, MySQL, ETL Pipelines, Data Architecture
-
-**DevOps & Observability:**
-Docker, Prometheus, Grafana, CI/CD
-
-**Operating Systems:**
-Windows, Mac OS, Linux
+{% for cert in site.data.profile.certifications %}
+- **{{ cert.name }}** — {{ cert.issuer }}{% if cert.issued_date %}, {{ cert.issued_date }}{% endif %}{% if cert.expiry_date %} (Expires: {{ cert.expiry_date }}){% endif %}
+{% endfor %}
+{% endif %}
 
 ## Education
 
-**Bachelor of Engineering**
-*Instrumentation, Visveswaraya Technological University*
+{% for edu in site.data.profile.education %}
+**{{ edu.degree }}**{% if edu.field_of_study %} in {{ edu.field_of_study }}{% endif %}
+{{ edu.institution }}{% if edu.location %}, {{ edu.location }}{% endif %} | {{ edu.graduation_year }}
+{% if edu.gpa %}
+*GPA: {{ edu.gpa }}*
+{% endif %}
+{% if edu.honors %}
+*{{ edu.honors }}*
+{% endif %}
 
-## Interests
+{% endfor %}
 
-Besides playing with data, I like to cook, run, and kayak. I live in Michigan and love rural Michigan.
+{% if site.data.profile.contact %}
+## Connect
+
+{% if site.data.profile.contact.linkedin_url %}
+- [LinkedIn]({{ site.data.profile.contact.linkedin_url }})
+{% endif %}
+{% if site.data.profile.contact.github_url %}
+- [GitHub]({{ site.data.profile.contact.github_url }})
+{% endif %}
+{% if site.data.profile.contact.location %}
+- **Location:** {{ site.data.profile.contact.location }}
+{% endif %}
+{% endif %}
+
+---
+
+*Last updated: {{ site.data.profile.metadata.last_updated | date: "%B %d, %Y" }}*
+
+{% else %}
+<div class="placeholder" style="padding: 2em; background-color: #f6f8fa; border-radius: 6px; text-align: center;">
+  <p style="color: #586069;">Professional profile information is temporarily unavailable. Please check back later.</p>
+</div>
+{% endif %}

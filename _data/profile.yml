@@ -1,0 +1,117 @@
+# Professional Profile Data
+# Manually maintained - sync with LinkedIn profile
+# Last updated: 2026-02-08
+
+name: "Shanmukha Eeti"
+headline: "Data Architect & AI Engineer | Enterprise AI Automation"
+summary: |
+  Data Architect and AI Engineer specializing in building production-grade AI systems,
+  multi-agent orchestration, and cloud-native architectures. Currently leading digital
+  transformation projects at Thermofisher Scientific while exploring enterprise AI
+  automation, multi-cloud infrastructure, and intelligent workflow optimization.
+
+  Passionate about leveraging AI to solve complex business problems and drive operational
+  efficiency. Strong advocate for social justice, mental health, gender equality, and
+  climate change initiatives.
+
+experience:
+  - title: "Data Architect"
+    company: "Thermofisher Scientific"
+    company_url: "https://www.thermofisher.com"
+    location: "Michigan, USA"
+    period: "Present"
+    description: |
+      Leading digital transformation initiatives and building scalable data architectures
+      for enterprise systems.
+    highlights:
+      - "Architected enterprise workflow automation platform with $254K annual savings"
+      - "Deployed multi-agent AI systems using LangGraph and AWS Bedrock"
+      - "Implemented infrastructure-as-code managing 18+ AWS resources"
+
+  - title: "Senior Data Engineer"
+    company: "Citizens Bank"
+    company_url: "https://www.citizensbank.com"
+    location: "Rhode Island, USA"
+    period: "2019 - Present"
+    description: |
+      Build production models adhering to regulatory rules in collection and recovery.
+      Performance analysis of recovery strategies. Gap analysis and systems to
+      streamline processes.
+    highlights:
+      - "Developed regulatory-compliant production models for collections"
+      - "Implemented performance analysis frameworks for recovery strategies"
+      - "Led gap analysis and process optimization initiatives"
+
+  - title: "SQL Developer"
+    company: "Freddie Mac"
+    company_url: "https://www.freddiemac.com"
+    location: "McLean, VA"
+    period: "2012 - 2014"
+    description: |
+      Central warehouse team member developing data pipelines and reporting systems
+      for mortgage finance operations.
+
+skills:
+  - category: "Cloud & Infrastructure"
+    items:
+      - "AWS (Bedrock, DynamoDB, S3, SQS, Lambda, VPC)"
+      - "Terraform"
+      - "Infrastructure as Code"
+      - "Multi-cloud Architecture"
+
+  - category: "Programming & Frameworks"
+    items:
+      - "Python"
+      - "SAS"
+      - "LangChain"
+      - "LangGraph"
+      - "FastAPI"
+      - "REST APIs"
+
+  - category: "AI & Machine Learning"
+    items:
+      - "AWS Bedrock"
+      - "Multi-Agent Systems"
+      - "Machine Learning"
+      - "Keras"
+      - "TensorFlow"
+      - "NLP"
+      - "Computer Vision"
+
+  - category: "Data Engineering"
+    items:
+      - "PostgreSQL"
+      - "MySQL"
+      - "ETL Pipelines"
+      - "Data Architecture"
+
+  - category: "DevOps & Observability"
+    items:
+      - "Docker"
+      - "Prometheus"
+      - "Grafana"
+      - "CI/CD"
+
+certifications:
+  - name: "AWS Certified Solutions Architect"
+    issuer: "Amazon Web Services"
+    issued_date: "2024"
+    expiry_date: null
+
+education:
+  - degree: "Bachelor of Engineering"
+    field_of_study: "Instrumentation"
+    institution: "Visveswaraya Technological University"
+    location: "India"
+    graduation_year: "2010"
+
+contact:
+  linkedin_url: "https://linkedin.com/in/dataneuron"
+  github_url: "https://github.com/DataNeuron"
+  location: "Michigan, USA"
+
+metadata:
+  last_updated: "2026-02-08"
+  last_manual_sync: "2026-02-08"
+  data_source: "manual_entry"
+  linkedin_profile_version: "v1"

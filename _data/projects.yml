@@ -1,0 +1,12 @@
+# GitHub Pinned Projects Data
+# This file is automatically updated by scripts/fetch-github-projects.rb
+# Last manual edit: 2026-02-08
+
+fetch_metadata:
+  last_updated: null
+  fetch_status: "pending"
+  error_message: null
+  source: "github"
+  github_username: "DataNeuron"
+
+projects: []
