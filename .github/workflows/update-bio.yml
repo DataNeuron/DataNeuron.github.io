@@ -1,0 +1,77 @@
+name: Update Bio Content
+
+on:
+  workflow_dispatch:
+    inputs:
+      update_section:
+        description: 'Which section to update'
+        required: true
+        type: choice
+        options:
+          - projects
+          - both
+        default: 'projects'
+
+permissions:
+  contents: write
+
+jobs:
+  update-content:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+
+      - name: Fetch GitHub projects
+        if: ${{ inputs.update_section == 'projects' || inputs.update_section == 'both' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.PORTFOLIO_SYNC_TOKEN }}
+          GITHUB_USERNAME: DataNeuron
+        run: |
+          echo "Fetching pinned repositories..."
+          ruby scripts/fetch-github-projects.rb
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git diff --quiet _data/ || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit updated data
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add _data/
+          git commit -m "Update bio content via workflow [skip ci]
+
+          Updated section: ${{ inputs.update_section }}
+          Triggered by: @${{ github.actor }}
+          "
+          git push
+
+      - name: No changes detected
+        if: steps.check_changes.outputs.changes != 'true'
+        run: |
+          echo "No changes detected in _data/ directory"
+
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "### Update Bio Content Workflow Complete ✅" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Configuration:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Updated section: \`${{ inputs.update_section }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Triggered by: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_changes.outputs.changes }}" == "true" ]; then
+            echo "**Status:** Changes detected and committed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Status:** No changes detected" >> $GITHUB_STEP_SUMMARY
+          fi

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell:*)",
+      "Bash(if git rev-parse --git-dir)",
+      "Bash(then echo \"GIT_REPO=true\")",
+      "Bash(else echo \"GIT_REPO=false\")",
+      "Bash(fi)"
+    ]
+  }
+}
